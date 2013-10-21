@@ -10,29 +10,84 @@ class Index extends baseMod {
 ?>
 	<script src="js/articleBrowse.js"></script>
 	<script>
+		//enum
+		var ARTICLE_BROWSE = 1;
+		var ARTICLE_POST = 2;
+		
+		var _currentSystem = ARTICLE_BROWSE;
+		
 		function updateView(data){
 			//console.log('updateView= '+data);
 			
-			var cmds = $.parseJSON(data);
+			switch(_currentSystem){
+				case ARTICLE_BROWSE:
+					
+					var cmds = $.parseJSON(data);
 			
-			for(var i=0;i<cmds.length;i++){
-				var row = $.parseJSON(cmds[i]);
-				//console.log('row.cmd= '+row.cmd);
-				switch(row.cmd){
-					case 'PostData':
-						receivePost($.parseJSON(row.data));
-						$("html, body").animate({ scrollTop: 0 }, "slow");
-						outputArea.innerHTML = '';
-						break;
-					case 'Pager':
-						displayPager($.parseJSON(row.data));
-						break;
-				}
+					for(var i=0;i<cmds.length;i++){
+						var row = $.parseJSON(cmds[i]);
+						//console.log('row.cmd= '+row.cmd);
+						switch(row.cmd){
+							case 'PostData':
+								receivePost($.parseJSON(row.data));
+								$("html, body").animate({ scrollTop: 0 }, "slow");
+								outputArea.innerHTML = '';
+								break;
+							case 'Pager':
+								displayPager($.parseJSON(row.data));
+								break;
+						}
+
+					}
+					
+					break;
+				case ARTICLE_POST:
+					
+					var ci = document.getElementById('content-inner');
+					ci.innerHTML = data;
+					
+					break;
+			}
 				
+			
+		}
+		function changeSystem(n){
+			console.log(n.id);
+			switch(n.id){
+				case 'sysArticleBrowse':
+					requestArticleBrowse();
+					break;
+				case 'sysArticlePost':
+					requestArticlePost();
+					break;
 			}
 		}
+		function requestArticleBrowse(){
+			
+			_currentSystem = ARTICLE_BROWSE;
+			
+			var ci = document.getElementById('content-inner');
+			ci.innerHTML = '<div class="pager" id="divPager">\
+						<a class="button previous" id="buttonPrevious" onclick="buttonPrevious();" style="cursor:pointer;">Previous Page</a>\
+						<div class="pages" id="pagerPages">\
+							<span id="previousHellip">&hellip;</span>\
+							<span id="nextHellip">&hellip;</span>\
+						</div>\
+						<a class="button next" id="buttonNext" onclick="buttonNext();" style="cursor:pointer;">Next Page</a>\
+					</div>';
+			_nowPage = 1;
+			requestPost(_nowPage);
+		}
+		function requestArticlePost(){
+			
+			_currentSystem = ARTICLE_POST;
+			
+			xmlhttp.open('GET', 'edit.php');
+			xmlhttp.send(null);
+		}
 		function ready(){
-			ready_ArticleBrowse();
+			requestArticleBrowse();
+			init_ArticleBrowse();
 		}
 		
 	</script>
@@ -47,14 +102,7 @@ class Index extends baseMod {
 					
 					<!-- Pager -->
 				
-					<div class="pager" id="divPager">
-						<a class="button previous" id="buttonPrevious" onclick="buttonPrevious();" style="cursor:pointer;">Previous Page</a>
-						<div class="pages" id="pagerPages">
-							<span id="previousHellip">&hellip;</span>
-							<span id="nextHellip">&hellip;</span>
-						</div>
-						<a class="button next" id="buttonNext" onclick="buttonNext();" style="cursor:pointer;">Next Page</a>
-					</div>
+					
 				</div>
 				
 			</div>
@@ -70,8 +118,8 @@ class Index extends baseMod {
 				<!-- Nav -->
 					<nav id="nav">
 						<ul>
-							<li class="current_page_item"><a href="#">Article Browse</a></li>
-							<li><a href="#">Article Post</a></li>
+							<li class="current_page_item"><a href="#" id="sysArticleBrowse" onclick="changeSystem(this);">Article Browse</a></li>
+							<li><a href="#" id="sysArticlePost" onclick="changeSystem(this);">Article Post</a></li>
 							<li><a href="#">About PPG</a></li>
 							<li><a href="#">Contact PPG</a></li>
 						</ul>

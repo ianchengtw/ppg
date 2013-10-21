@@ -202,7 +202,7 @@ function requestPost(p){
 	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	xmlhttp.send(str);
 }
-function ready_ArticleBrowse(){
+function init_ArticleBrowse(){
 	_previousHellip = new PagerUnit(1,1,1,-1,document.getElementById('previousHellip'));
 	_nextHellip = new PagerUnit(1,1,1,-2,document.getElementById('nextHellip'));
 
